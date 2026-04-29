@@ -1,11 +1,11 @@
-module PC_Register(
+module FlipFlop_32bit(
     input logic clk,
     input logic en,
-    input logic [31:0] PCnext,
-    output logic [31:0] PC
+    input logic [31:0] next,
+    output logic [31:0] Q
 );
     always_ff @(posedge clk) begin
-        PC <= PCnext;
+        Q <= next;
     end
 
 endmodule
@@ -13,7 +13,7 @@ endmodule
 module MainMemory(
     input logic clk,
     input logic WEN,
-    input logic [9:0] A,
+    input logic [31:0] A,
     input logic [31:0] WD,
     output logic [31:0] RD
 );
@@ -22,11 +22,11 @@ module MainMemory(
 
     always_ff @(posedge clk) begin
         if(WEN) begin
-            RAM[A] <= WD;
+            RAM[A[11:2]] <= WD;
         end
     end    
     
-    assign RD = RAM[A];
+    assign RD = RAM[A[11:2]];
 
 endmodule
 
