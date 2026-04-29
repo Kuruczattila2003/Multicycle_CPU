@@ -56,7 +56,26 @@ module Main(
     logic [31:0] ALUOut;
     logic Zero, Negative, Overflow, Carry;
     
-    
+    //Control Unit
+    ControlUnit CU(
+        .clk(clk),
+        .reset(reset),
+        .op(),
+        .funct3(),
+        .funct7(),
+        
+        .PC_REG_EN(PC_REG_EN),
+        .AddrSrc(AddrSrc),
+        .Memory_WE(Memory_WE),
+        .IR_EN(IR_EN),
+        .DR_EN(DR_EN),
+        .RegisterFile_WE(RegisterFile_WE),
+        .Register_REG_EN(Register_REG_EN),
+        .ALU_REG_EN(ALU_REG_EN),
+        .ALU_ASelect(ALU_ASelect),
+        .ALU_BSelect(ALU_BSelect),
+        .ALUControl(ALUControl)
+    );
     
     //Program counter modules
     FlipFlop_32bit PC_REG(
