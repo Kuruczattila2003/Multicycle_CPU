@@ -1,0 +1,52 @@
+module PC_Register(
+    input logic clk,
+    input logic en,
+    input logic [31:0] PCnext,
+    output logic [31:0] PC
+);
+    always_ff @(posedge clk) begin
+        PC <= PCnext;
+    end
+
+endmodule
+
+module MainMemory(
+    input logic clk,
+    input logic WEN,
+    input logic [9:0] A,
+    input logic [31:0] WD,
+    output logic [31:0] RD
+);
+
+    logic [31:0] RAM [1023:0];
+
+    always_ff @(posedge clk) begin
+        if(WEN) begin
+            RAM[A] <= WD;
+        end
+    end    
+    
+    assign RD = RAM[A];
+
+endmodule
+
+module RegisterFile(
+    input logic clk,
+    input logic WEN,
+    input logic [4:0] A1, A2, A3,
+    input logic [31:0] WD3,
+    output logic [31:0] RD1, RD2
+);
+
+    logic [31:0] registerFile [31:0];
+
+    always_ff @(posedge clk) begin
+        if(WEN) begin
+            registerFile[A3] <= WD3;
+        end
+    end
+    
+    assign RD1 = registerFile[A1];
+    assign RD2 = registerFile[A2];
+
+endmodule
