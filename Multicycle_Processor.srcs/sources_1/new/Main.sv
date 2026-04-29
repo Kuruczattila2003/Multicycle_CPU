@@ -3,7 +3,10 @@
 
 
 module Main(
-    input clk
+    input clk,
+    input reset,
+    output [31:0] testInstruction,
+    output [31:0] testValue
 );
     //Enable and Write bits
         //Enable for PC Register
@@ -80,6 +83,7 @@ module Main(
     //Program counter modules
     FlipFlop_32bit PC_REG(
         .clk(clk),
+        .reset(reset),
         .en(PC_REG_EN), 
         .next(PCNext), 
         .Q(PC)
@@ -104,12 +108,14 @@ module Main(
     //Instruction and Data Registers
     FlipFlop_32bit IR(
         .clk(clk), 
+        .reset(reset),
         .en(IR_EN), 
         .next(Memory_RD), 
         .Q(IR_out)
     );
     FlipFlop_32bit DR(
         .clk(clk), 
+        .reset(reset),
         .en(DR_EN), 
         .next(Memory_RD), 
         .Q(DR_out)
@@ -130,12 +136,14 @@ module Main(
     //Registers A/B for RD1 and RD2 of Register File
     FlipFlop_32bit RegisterFile_REG1(
         .clk(clk), 
+        .reset(reset),
         .en(Register_REG_EN), 
         .next(RegisterFile_RD1), 
         .Q(RegisterFile_RD1_out)
     );
     FlipFlop_32bit RegisterFile_REG2(
         .clk(clk), 
+        .reset(reset),
         .en(Register_REG_EN), 
         .next(RegisterFile_RD2), 
         .Q(RegisterFile_RD2_out)
@@ -176,12 +184,16 @@ module Main(
     //ALU Register
     FlipFlop_32bit ALU_REG(
         .clk(clk), 
+        .reset(reset),
         .en(ALU_REG_EN), 
         .next(ALUResult), 
         .Q(ALUOut)
      );
     
     //Set PCNext to calculated PC + 4
-    assign PCNext = ALUResult;    
+    assign PCNext = ALUResult;   
     
+    //---------Test only-------------- 
+    assign testInstruction = IR_out;
+    assign testValue = DR_out;
 endmodule

@@ -1,11 +1,17 @@
 module FlipFlop_32bit(
     input logic clk,
+    input logic reset,
     input logic en,
     input logic [31:0] next,
     output logic [31:0] Q
 );
     always_ff @(posedge clk) begin
-        Q <= next;
+        if(reset) begin
+            Q <= 32'b0;
+        end
+        else if(en) begin
+            Q <= next;
+        end
     end
 
 endmodule
@@ -26,27 +32,33 @@ module MainMemory(
         end
     end    
     
+    initial begin
+        for (int i = 0; i < 1024; i++) begin
+            RAM[i] = 32'b0;
+        end
+        $readmemh("program.mem", RAM);
+    end
+    
     assign RD = RAM[A[11:2]];
 
 endmodule
 
 module RegisterFile(
-    input logic clk,
-    input logic WEN,
-    input logic [4:0] A1, A2, A3,
-    input logic [31:0] WD3,
+    input  logic        clk,
+    input  logic        WEN,
+    input  logic [4:0]  A1, A2, A3,
+    input  logic [31:0] WD3,
     output logic [31:0] RD1, RD2
 );
-
-    logic [31:0] registerFile [31:0];
+    logic [31:0] registers [31:0];
 
     always_ff @(posedge clk) begin
-        if(WEN) begin
-            registerFile[A3] <= WD3;
+        if (WEN && (A3 != 5'b0)) begin 
+            registers[A3] <= WD3;
         end
     end
-    
-    assign RD1 = registerFile[A1];
-    assign RD2 = registerFile[A2];
+
+    assign RD1 = (A1 == 5'b0) ? 32'b0 : registers[A1];
+    assign RD2 = (A2 == 5'b0) ? 32'b0 : registers[A2];
 
 endmodule

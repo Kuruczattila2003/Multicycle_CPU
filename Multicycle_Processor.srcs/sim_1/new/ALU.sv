@@ -1,12 +1,5 @@
 `timescale 1ns / 1ps
-/*
-module prefix_adder(
-    input logic [31:0] a, b,
-    input logic cin,
-    output logic [31:0] sum,
-    output logic cout
-);
-*/
+
 
 module ALU(
         input logic [31:0] A, B,
