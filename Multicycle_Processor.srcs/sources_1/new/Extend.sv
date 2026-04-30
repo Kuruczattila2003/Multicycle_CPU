@@ -21,10 +21,20 @@
 
 
 module Extend(
-        input logic [31:20] imm,
+        input logic [6:0] opcode,
+        input logic [31:5] instr,
         output logic [31:0] Q
     );
     
-    assign Q = {{20{imm[31]}}, imm[31:20]};
+    always_comb begin
+        if(opcode == 7'b0000011) begin
+        //lw
+            Q = {{20{instr[31]}}, instr[31:20]};
+        end
+        else if(opcode == 7'b0100011) begin
+        //sw
+            Q = {{20{instr[31]}}, instr[31:25], instr[11:7]};
+        end
+    end 
     
 endmodule

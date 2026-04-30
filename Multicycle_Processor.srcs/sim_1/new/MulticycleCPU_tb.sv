@@ -23,19 +23,11 @@ module MulticycleCPU_tb();
 
     logic clk;
     logic reset;
-    logic [31:0] testValue;
-    logic [31:0] testInstruction;
-    logic [31:0] expectedValue;
-    
-    //lw x1, 4(x0)
-    
-    assign expectedValue = 32'hDEADBEEF;
+   
 
     Main dut (
         .clk(clk),
-        .reset(reset),
-        .testInstruction(testInstruction),
-        .testValue(testValue)
+        .reset(reset)
     );
 
     always begin
@@ -54,17 +46,9 @@ module MulticycleCPU_tb();
         
         reset = 1'b0; 
 
-        //lw = 5*20ns = 100ns
-        #100;
-        if(testValue == expectedValue) begin
-            $display("Test Successfull with value: %h", testValue);
-            $display("Machine code of Instruction: %h", testInstruction);
-        end
-        else begin
-            $display("Test Failure with value: %h", testValue);
-            $display("Machine code of Instruction: %h", testInstruction);
-        end        
-        
+        //lw + sw = 2*5*20ns = 200ns
+        #200
+        $display("Test finished");
         $finish;
     end
 

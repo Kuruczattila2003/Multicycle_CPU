@@ -4,21 +4,25 @@
 lw states:
 
 S0 (Fetch) -> PC_REG_EN = 1, AddrSrc = 0, ALU_ASelect = 1, ALU_BSelect = 1, IR_EN = 1, DR_EN = 1, ALUControl = 3'b000
-
 S1 (Decode) -> IR_EN = 0, DR_EN = 0, RegisterFile_RD1_EN = 1, RegisterFile_RD2_EN = 1
-
 S2 (Execute) -> ALU_ASelect = 0, ALU_BSelect = 0, ALU_REG_EN = 1, ALUControl = 3'b000
-
 S3 (Memory_read) -> AddrSrc = 1, DR_EN = 1
-
 S4 (RegisterFile_write) -> RegisterFile_WE = 1
+
+sw states:
+S0 (Fetch) -> same as lw
+S1 (Decode) -> same as lw
+S2 (Execute) -> same as lw
+S5 (Memory_Write) -> AddSrc = 1, Memory_WE = 1
+ 
+
 
 */
 
 module ControlUnit(
         input clk,
         input reset,
-        input  logic [6:0] op,
+        input  logic [6:0] opcode,
         input logic [2:0] funct3,
         input logic [6:0] funct7,
         
@@ -40,7 +44,8 @@ module ControlUnit(
         DECODE = 3'b001,
         EXECUTE = 3'b010,
         MEM_READ = 3'b011,
-        REGFILE_WRITE = 3'b100
+        REGFILE_WRITE = 3'b100,
+        MEM_WRITE = 3'b101
     } state_t;
     
     state_t state;
@@ -90,7 +95,15 @@ module ControlUnit(
             EXECUTE: begin
                 ALU_REG_EN = 1'b1;
                 ALUControl = 3'b000;
-                nextState = MEM_READ;
+                if(opcode == 7'b0000011) begin
+                //lw
+                    nextState = MEM_READ;
+                end
+                else if(opcode == 7'b0100011) begin
+                //sw
+                    nextState = MEM_WRITE;
+                end
+                
             end
             //S3 (Memory_read) -> AddrSrc = 1, DR_EN = 1
             MEM_READ: begin
@@ -103,7 +116,13 @@ module ControlUnit(
                 RegisterFile_WE = 1'b1;
                 nextState = FETCH;
             end
-        
+            //S5 (Memory write) -> AddrSrc = 1, Memory_WE = 1
+            MEM_WRITE: begin
+                AddrSrc = 1'b1;
+                Memory_WE = 1'b1;
+            end
+            
+            
             default: begin
                 nextState = FETCH;
         end

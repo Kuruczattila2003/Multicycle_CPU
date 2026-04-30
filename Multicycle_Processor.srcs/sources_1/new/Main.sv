@@ -5,8 +5,6 @@
 module Main(
     input clk,
     input reset,
-    output [31:0] testInstruction,
-    output [31:0] testValue
 );
     //Enable and Write bits
         //Enable for PC Register
@@ -40,6 +38,7 @@ module Main(
     //PC
     logic [31:0] PCNext;
     logic [31:0] PC;
+    logic [31:0] PCOld;
     //Memory
     logic [31:0] Memory_A;
     logic [31:0] Memory_RD;
@@ -50,6 +49,8 @@ module Main(
     logic [31:0] RegisterFile_RD2;
     logic [31:0] RegisterFile_RD1_out;
     logic [31:0] RegisterFile_RD2_out;
+    logic [6:0] opcode;
+    logic [2:0] funct3;
     //Extend
     logic [31:0] extendedImm;
     //ALU
@@ -59,13 +60,15 @@ module Main(
     logic [31:0] ALUOut;
     logic Zero, Negative, Overflow, Carry;
     
+   
+    
     //Control Unit
     ControlUnit CU(
         .clk(clk),
         .reset(reset),
-        .op(),
-        .funct3(),
-        .funct7(),
+        .opcode(opcode),
+        .funct3(funct3),
+        .funct7(funct7),
         
         .PC_REG_EN(PC_REG_EN),
         .AddrSrc(AddrSrc),
@@ -89,6 +92,14 @@ module Main(
         .Q(PC)
     );
     
+    FlipFlop_32bit PC_OLD_REG(
+        .clk(clk),
+        .reset(reset),
+        .en(IR_EN),
+        .next(PC),
+        .Q(PCOld)
+    );
+    
     //Main memory modules
     //Multiplexer for Memory Address
     mux2_1_32bit AddrSrc_Mux(
@@ -102,7 +113,7 @@ module Main(
         .clk(clk), 
         .WEN(Memory_WE), 
         .A(Memory_A), 
-        .WD(),              //EMPTY!!!
+        .WD(RegisterFile_RD2_out),
         .RD(Memory_RD)
     );
     //Instruction and Data Registers
@@ -113,6 +124,9 @@ module Main(
         .next(Memory_RD), 
         .Q(IR_out)
     );
+    assign opcode = IR_out[6:0];
+    assign funct3 = IR_out[14:12];
+    
     FlipFlop_32bit DR(
         .clk(clk), 
         .reset(reset),
@@ -127,7 +141,7 @@ module Main(
         .clk(clk), 
         .WEN(RegisterFile_WE), 
         .A1(IR_out[19:15]), 
-        .A2(),                  //EMPTY!!!
+        .A2(IR_out[24:20]),
         .A3(IR_out[11:7]), 
         .WD3(DR_out), 
         .RD1(RegisterFile_RD1), 
@@ -149,9 +163,12 @@ module Main(
         .Q(RegisterFile_RD2_out)
     );
     
+    
+    
     //Extend for Immediate Value
     Extend extendUnit(
-        .imm(IR_out[31:20]), 
+        .opcode(opcode),
+        .instr(IR_out[31:5]), 
         .Q(extendedImm)
     );
     
@@ -193,7 +210,4 @@ module Main(
     //Set PCNext to calculated PC + 4
     assign PCNext = ALUResult;   
     
-    //---------Test only-------------- 
-    assign testInstruction = IR_out;
-    assign testValue = DR_out;
 endmodule

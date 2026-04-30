@@ -36,7 +36,7 @@ module MainMemory(
         for (int i = 0; i < 1024; i++) begin
             RAM[i] = 32'b0;
         end
-        $readmemh("program.mem", RAM);
+        $readmemb("program.mem", RAM);
     end
     
     assign RD = RAM[A[11:2]];
@@ -52,13 +52,15 @@ module RegisterFile(
 );
     logic [31:0] registers [31:0];
 
+    assign registers[0] = 32'b0;
+    
     always_ff @(posedge clk) begin
         if (WEN && (A3 != 5'b0)) begin 
             registers[A3] <= WD3;
         end
     end
 
-    assign RD1 = (A1 == 5'b0) ? 32'b0 : registers[A1];
-    assign RD2 = (A2 == 5'b0) ? 32'b0 : registers[A2];
+    assign RD1 = registers[A1];
+    assign RD2 = registers[A2];
 
 endmodule

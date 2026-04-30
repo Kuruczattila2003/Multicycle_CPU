@@ -1,5 +1,4 @@
 Time resolution is 1 ps
 Starting CPU Simulation...
-Test Successfull with value: deadbeef
-Machine code of Instruction: 00402083
-$finish called at time : 135 ns : File "C:/Users/kuruc/CPU_Design/Multicycle_CPU/Multicycle_Processor.srcs/sim_1/new/MulticycleCPU_tb.sv" Line 68
+Test finished
+$finish called at time : 235 ns : File "C:/Users/kuruc/CPU_Design/Multicycle_CPU/Multicycle_Processor.srcs/sim_1/new/MulticycleCPU_tb.sv" Line 52
