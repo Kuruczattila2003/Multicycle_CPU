@@ -48,6 +48,7 @@ module MulticycleCPU_tb();
 
         //lw + sw = 2*5*20ns = 200ns
         #200
+        #100
         $display("Test finished");
         $finish;
     end

@@ -36,7 +36,7 @@ module MainMemory(
         for (int i = 0; i < 1024; i++) begin
             RAM[i] = 32'b0;
         end
-        $readmemb("program.mem", RAM);
+        $readmemh("program.mem", RAM);
     end
     
     assign RD = RAM[A[11:2]];

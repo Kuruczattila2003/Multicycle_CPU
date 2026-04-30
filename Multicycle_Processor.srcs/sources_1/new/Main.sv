@@ -4,7 +4,7 @@
 
 module Main(
     input clk,
-    input reset,
+    input reset
 );
     //Enable and Write bits
         //Enable for PC Register
@@ -19,6 +19,8 @@ module Main(
         logic DR_EN;
         
         //Register
+        //Write data select line for multiplexer
+        logic [1:0] Register_WD_SELECT;
         //Write enable for Register file
         logic RegisterFile_WE;
         //Enable for Register register
@@ -30,8 +32,8 @@ module Main(
         
     //Mutex select bits and control bits
         logic AddrSrc;
-        logic ALU_ASelect;
-        logic ALU_BSelect;
+        logic [1:0] ALU_ASelect;
+        logic [1:0] ALU_BSelect;
         logic [2:0] ALUControl;
         
     //wires
@@ -47,10 +49,12 @@ module Main(
     //Register file
     logic [31:0] RegisterFile_RD1;
     logic [31:0] RegisterFile_RD2;
+    logic [31:0] RegisterFile_WD;
     logic [31:0] RegisterFile_RD1_out;
     logic [31:0] RegisterFile_RD2_out;
     logic [6:0] opcode;
     logic [2:0] funct3;
+    logic [6:0] funct7;
     //Extend
     logic [31:0] extendedImm;
     //ALU
@@ -76,6 +80,7 @@ module Main(
         .IR_EN(IR_EN),
         .DR_EN(DR_EN),
         .RegisterFile_WE(RegisterFile_WE),
+        .Register_WD_SELECT(Register_WD_SELECT),
         .Register_REG_EN(Register_REG_EN),
         .ALU_REG_EN(ALU_REG_EN),
         .ALU_ASelect(ALU_ASelect),
@@ -92,13 +97,7 @@ module Main(
         .Q(PC)
     );
     
-    FlipFlop_32bit PC_OLD_REG(
-        .clk(clk),
-        .reset(reset),
-        .en(IR_EN),
-        .next(PC),
-        .Q(PCOld)
-    );
+    
     
     //Main memory modules
     //Multiplexer for Memory Address
@@ -126,6 +125,7 @@ module Main(
     );
     assign opcode = IR_out[6:0];
     assign funct3 = IR_out[14:12];
+    assign funct7 = IR_out[31:25];
     
     FlipFlop_32bit DR(
         .clk(clk), 
@@ -137,13 +137,22 @@ module Main(
     
     //Register File modules
     //Register File
+    
+    mux4_1_32bit Register_WD_Mux(
+        .a(DR_out), 
+        .b(ALUOut),
+        .c(),
+        .d(), 
+        .s(Register_WD_SELECT), 
+        .q(RegisterFile_WD)
+    );
     RegisterFile registerFile(
         .clk(clk), 
         .WEN(RegisterFile_WE), 
         .A1(IR_out[19:15]), 
         .A2(IR_out[24:20]),
         .A3(IR_out[11:7]), 
-        .WD3(DR_out), 
+        .WD3(RegisterFile_WD), 
         .RD1(RegisterFile_RD1), 
         .RD2(RegisterFile_RD2)
     );
@@ -174,16 +183,20 @@ module Main(
     
     //ALU modules
     //ALU muxes for A and B of ALU
-    mux2_1_32bit ALU_ASelect_MUX(
+    mux4_1_32bit ALU_ASelect_MUX(
         .a(RegisterFile_RD1_out), 
         .b(PC), 
+        .c(),
+        .d(),
         .s(ALU_ASelect), 
         .q(ALU_A)
     );
         
-    mux2_1_32bit ALU_BSelect_MUX(
+    mux4_1_32bit ALU_BSelect_MUX(
         .a(extendedImm), 
         .b(32'h4), 
+        .c(RegisterFile_RD2_out),
+        .d(),
         .s(ALU_BSelect), 
         .q(ALU_B)
     );
