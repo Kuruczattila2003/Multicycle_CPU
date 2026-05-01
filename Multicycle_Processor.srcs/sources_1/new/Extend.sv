@@ -28,15 +28,20 @@ module Extend(
     
     always_comb begin
         if(opcode == 7'b0000011) begin
-        //lw
+        //LW instruction
             Q = {{20{instr[31]}}, instr[31:20]};
         end
         else if(opcode == 7'b0100011) begin
-        //sw
+        //SW instruction
             Q = {{20{instr[31]}}, instr[31:25], instr[11:7]};
         end
         else if(opcode == 7'b1100011) begin
+        //BEQ instruction
             Q = {{20{instr[31]}}, instr[7], instr[30:25], instr[11:8], 1'b0};            
+        end
+        else if(opcode == 7'b1101111) begin
+        //JAL instruction
+            Q = {{12{instr[31]}}, instr[19:12], instr[20], instr[30:21], 1'b0};
         end
         else begin
         //THis is problematic

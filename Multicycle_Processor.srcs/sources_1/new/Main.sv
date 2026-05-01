@@ -153,10 +153,10 @@ module Main(
     //Register File
     
     mux4_1_32bit Register_WD_Mux(
-        .a(DR_out), 
-        .b(ALUOut),
-        .c(),
-        .d(), 
+        .a(DR_out),  //00
+        .b(ALUOut), //01
+        .c(extendedImm), //10
+        .d(), //11
         .s(Register_WD_SELECT), 
         .q(RegisterFile_WD)
     );
@@ -236,9 +236,9 @@ module Main(
     
     //Set PCNext to calculated PC + 4
     mux4_1_32bit ALU_Result_MUX(
-        .a(ALUResult), 
-        .b(ALUOut), 
-        .c(DR_Out),
+        .a(ALUResult), //00 
+        .b(ALUOut),  //01
+        .c(DR_Out), //10
         .d(),
         .s(ALUResultSrc), 
         .q(PCNext)

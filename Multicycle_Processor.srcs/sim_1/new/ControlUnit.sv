@@ -19,12 +19,25 @@ R-Type: add, sub, and, or, slt
 S0 (Fetch)
 S1 (Decode)
 S6 (Execute) -> ALU_ASelect = 00, ALU_BSelect = 10, ALU_REG_EN = 1, ALUControl = depends on opcode
-S7 (ALUWriteback) -> RegisterFile_WE = 1, Register_WD_SELECT = 01 
+S7 (ALUWriteback to register) -> RegisterFile_WE = 1, Register_WD_SELECT = 2'b01 
 
 BEQ
 S0 (Fetch)
 S1 (Decode)
-S8 (BEQ) -> based on Zero flag -> PC_REG_EN = Zero(flag), ALU_ASelect = 2'b00, ALU_BSelect = 2'b10, ALUControl = 3'b001
+S8 (BEQ) -> based on Zero flag -> PC_REG_EN = Zero(flag) | Do a substraction -> ALU_ASelect = 2'b00, ALU_BSelect = 2'b10, ALUControl = 3'b001
+
+JAL
+S0 (Fetch)
+S1 (Decode)
+S9 (JAL) -> Save PCOld+imm to PC -> PC_REG_EN = 1'b1, ALUResultSrc = 2'b01 | Calculate PCOld + 4 (save it to rd in next step) -> ALU_ASelect = 2'b10, ALU_BSelect = 2'b01, ALU_REG_EN = 1'b1 
+S7 (ALUWriteback to register) -> RegisterFile_WE = 1, Register_WD_SELECT = 2'b01 
+
+I-Type ALU
+addi
+S0 (Fetch)
+S1 (Decode)
+S10 (ExecuteI) -> Add Rd1 + Imm -> ALU_ASource = 2'b00, ALU_BSource = 2'b00, ALU_WE_EN = 1'b1
+S7 (ALUWriteback to register) -> RegisterFile_WE = 1, Register_WD_SELECT = 2'b01 
 
 
 */
@@ -61,7 +74,9 @@ module ControlUnit(
         MEM_WRITE = 4'b0101, //S5
         ExecuteR = 4'b0110, //S6
         ALUWriteback = 4'b0111, //S7
-        BEQ = 4'b1000 //S8
+        BEQ = 4'b1000, //S8
+        JAL = 4'b1001, //S9
+        ExecuteI = 4'b1010 //S10
     } state_t;
     
     state_t state;
@@ -124,6 +139,14 @@ module ControlUnit(
                     //BEQ instruction
                     nextState = BEQ;
                 end
+                else if(opcode == 7'b1101111) begin
+                    //JAL instruction
+                    nextState = JAL;
+                end
+                else if(opcode == 7'b0010011) begin
+                    //I-type ALU instruction
+                    nextState = ExecuteI;
+                end    
                 else begin
                     nextState = FETCH;
                 end
@@ -223,7 +246,25 @@ module ControlUnit(
                 nextState = FETCH;
            end 
             
-            
+           //S9 JAL instruction
+           //S9 (JAL) -> Save PCOld+imm to PC -> PC_REG_EN = 1'b1, ALUResultSrc = 2'b01 | Calculate PCOld + 4 (save it to rd in next step) -> ALU_ASelect = 2'b10, ALU_BSelect = 2'b01, ALU_REG_EN = 1'b1 
+           JAL: begin 
+                PC_REG_EN = 1'b1;
+                ALUResultSrc = 2'b01;
+                ALU_ASelect = 2'b10;
+                ALU_BSelect = 2'b01; 
+                ALU_REG_EN = 1'b1;
+                nextState = ALUWriteback;
+           end
+           
+           //S10 I-Type ALU instruction like addi
+           //S10 (ExecuteI) -> ALU_ASource = 2'b00, ALU_BSource = 2'b00, ALU_WE_EN = 1'b1
+           ExecuteI: begin
+                ALU_ASelect = 2'b00;
+                ALU_BSelect = 2'b00;
+                ALU_REG_EN = 1'b1; 
+                nextState = ALUWriteback;           
+           end
             
             default: begin
                 nextState = FETCH;

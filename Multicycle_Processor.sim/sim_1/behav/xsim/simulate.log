@@ -2,10 +2,4 @@ Time resolution is 1 ps
 Starting CPU Simulation...
 Stopped at time : 35 ns : File "C:/Users/kuruc/CPU_Design/Multicycle_CPU/Multicycle_Processor.srcs/sim_1/new/MulticycleCPU_tb.sv" Line 49
 Test finished
-$finish called at time : 635 ns : File "C:/Users/kuruc/CPU_Design/Multicycle_CPU/Multicycle_Processor.srcs/sim_1/new/MulticycleCPU_tb.sv" Line 51
-Starting CPU Simulation...
-Stopped at time : 35 ns : File "C:/Users/kuruc/CPU_Design/Multicycle_CPU/Multicycle_Processor.srcs/sim_1/new/MulticycleCPU_tb.sv" Line 49
-Test finished
-$finish called at time : 635 ns : File "C:/Users/kuruc/CPU_Design/Multicycle_CPU/Multicycle_Processor.srcs/sim_1/new/MulticycleCPU_tb.sv" Line 51
-Starting CPU Simulation...
-Stopped at time : 35 ns : File "C:/Users/kuruc/CPU_Design/Multicycle_CPU/Multicycle_Processor.srcs/sim_1/new/MulticycleCPU_tb.sv" Line 49
+$finish called at time : 2035 ns : File "C:/Users/kuruc/CPU_Design/Multicycle_CPU/Multicycle_Processor.srcs/sim_1/new/MulticycleCPU_tb.sv" Line 51
