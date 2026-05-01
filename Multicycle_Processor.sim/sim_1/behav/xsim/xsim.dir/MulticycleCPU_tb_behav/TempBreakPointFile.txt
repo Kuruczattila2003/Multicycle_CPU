@@ -1,1 +1,2 @@
 Breakpoint File Version 1.0
+49,true,"C:/Users/kuruc/CPU_Design/Multicycle_CPU/Multicycle_Processor.srcs/sim_1/new/MulticycleCPU_tb.sv"

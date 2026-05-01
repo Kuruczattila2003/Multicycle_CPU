@@ -35,6 +35,13 @@ module Extend(
         //sw
             Q = {{20{instr[31]}}, instr[31:25], instr[11:7]};
         end
+        else if(opcode == 7'b1100011) begin
+            Q = {{20{instr[31]}}, instr[7], instr[30:25], instr[11:8], 1'b0};            
+        end
+        else begin
+        //THis is problematic
+            Q = {{20{instr[31]}}, instr[31:20]};
+        end
     end 
     
 endmodule

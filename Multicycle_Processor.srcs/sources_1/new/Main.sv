@@ -35,6 +35,7 @@ module Main(
         logic [1:0] ALU_ASelect;
         logic [1:0] ALU_BSelect;
         logic [2:0] ALUControl;
+        logic [1:0] ALUResultSrc;
         
     //wires
     //PC
@@ -73,6 +74,10 @@ module Main(
         .opcode(opcode),
         .funct3(funct3),
         .funct7(funct7),
+        .Zero(Zero), 
+        .Negative(Negative), 
+        .Overflow(Overflow), 
+        .Carry(Carry),
         
         .PC_REG_EN(PC_REG_EN),
         .AddrSrc(AddrSrc),
@@ -85,7 +90,8 @@ module Main(
         .ALU_REG_EN(ALU_REG_EN),
         .ALU_ASelect(ALU_ASelect),
         .ALU_BSelect(ALU_BSelect),
-        .ALUControl(ALUControl)
+        .ALUControl(ALUControl),
+        .ALUResultSrc(ALUResultSrc)
     );
     
     //Program counter modules
@@ -126,6 +132,14 @@ module Main(
     assign opcode = IR_out[6:0];
     assign funct3 = IR_out[14:12];
     assign funct7 = IR_out[31:25];
+    //Save old PC value for branch and jump calculations
+    FlipFlop_32bit PCOldRegister(
+        .clk(clk), 
+        .reset(reset),
+        .en(IR_EN), 
+        .next(PC), 
+        .Q(PCOld)
+    );
     
     FlipFlop_32bit DR(
         .clk(clk), 
@@ -184,19 +198,19 @@ module Main(
     //ALU modules
     //ALU muxes for A and B of ALU
     mux4_1_32bit ALU_ASelect_MUX(
-        .a(RegisterFile_RD1_out), 
-        .b(PC), 
-        .c(),
-        .d(),
+        .a(RegisterFile_RD1_out), //00
+        .b(PC),  //01
+        .c(PCOld), //10
+        .d(), //11
         .s(ALU_ASelect), 
         .q(ALU_A)
     );
         
     mux4_1_32bit ALU_BSelect_MUX(
-        .a(extendedImm), 
-        .b(32'h4), 
-        .c(RegisterFile_RD2_out),
-        .d(),
+        .a(extendedImm), //00
+        .b(32'h4),  //01
+        .c(RegisterFile_RD2_out), //10
+        .d(), //11
         .s(ALU_BSelect), 
         .q(ALU_B)
     );
@@ -221,6 +235,13 @@ module Main(
      );
     
     //Set PCNext to calculated PC + 4
-    assign PCNext = ALUResult;   
+    mux4_1_32bit ALU_Result_MUX(
+        .a(ALUResult), 
+        .b(ALUOut), 
+        .c(DR_Out),
+        .d(),
+        .s(ALUResultSrc), 
+        .q(PCNext)
+    );
     
 endmodule
